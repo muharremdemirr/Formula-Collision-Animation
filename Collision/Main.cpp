@@ -1,11 +1,3 @@
-/*
-Proje 3 öğrenci tarafından ortak yapıldı.
-200101010 - Muharrem DEMİR
-210101157 - Berkay DURSUN
-200101007 - Murat EKER
-*/
-
-
 #include "icb_gui.h"  
 
 int FRM1;
@@ -13,18 +5,18 @@ ICBYTES panel;
 bool thread_continue = false;
 DWORD dw;
 
-// Yağmur damlaları için koordinatlar ve hızlar
+// Coordinates and speeds for raindrops
 int bx = 50;
 int by = 50;
 int x[12] = { bx, bx + 50, bx + 100, bx + 150, bx + 200, bx + 250, bx + 300, bx + 350, bx + 400, bx + 450, bx + 500, bx + 550 };
 int y[12] = { by, by + 50, by + 100, by, by + 50, by + 100, by, by + 50, by + 100, by, by + 50, by + 100 };
 int speed[12];
 
-// Araçlar için koordinat ve hız değişkenleri
-int left_x = 50;      // Soldan sağa hareket eden araç 
-int right_x = 500;    // Sağdan sola hareket eden araç
-int left_speed = 10;  // Kırmızı  aracın hızı  (daha hızlı)
-int right_speed = 5;  // Mavi aracın hızı  (daha yavaş)
+// Variables for vehicle coordinates and speed
+int left_x = 50;      // Vehicle moving from left to right 
+int right_x = 500;    // Vehicle moving from right to left
+int left_speed = 10;  // Speed of the red vehicle (faster)
+int right_speed = 5;  // Speed of the blue vehicle (slower)
 
 void static setRandomSpeeds() {
     for (int i = 0; i < 11; i++) {
@@ -39,84 +31,84 @@ void static DrawRaindrop(int x, int y) {
 }
 
 void static DrawFormulaCar(int posX, int posY, int color, int kabin) {
-    // Gövde
-    FillRect(panel, posX + 5, posY - 5, 40, 10, color);  // Gövde rengi (kırmızı veya mavi)
+    // Body
+    FillRect(panel, posX + 5, posY - 5, 40, 10, color);  // Body color (red or blue)
 
-    // Kabin (cam)
-    FillRect(panel, kabin, posY - 8, 10, 5, 0xFFFFFF);  // Kabin kısmı (açık mavi)
+    // Cabin (window)
+    FillRect(panel, kabin, posY - 8, 10, 5, 0xFFFFFF);  // Cabin section (light blue)
 
-    // Tekerlekler
-    FillCircle(panel, posX + 10, posY + 5, 6, 0x333333);  // Ön tekerlek
-    FillCircle(panel, posX + 35, posY + 5, 6, 0x333333);  // Arka tekerlek
+    // Wheels
+    FillCircle(panel, posX + 10, posY + 5, 6, 0x333333);  // Front wheel
+    FillCircle(panel, posX + 35, posY + 5, 6, 0x333333);  // Rear wheel
 }
 
 void static DrawHorizontalObjects() {
-    // Soldan sağa giden arac çizimi
-    DrawFormulaCar(left_x, 300, 0xFF0000, left_x + 13);  // Kırmızı araç 
+    // Drawing the vehicle moving from left to right
+    DrawFormulaCar(left_x, 300, 0xFF0000, left_x + 13);  // Red vehicle 
 
-    // Sağdan sola giden arac çizimi
-    DrawFormulaCar(right_x, 300, 0x0000FF, right_x + 25);  // Mavi araç 
+    // Drawing the vehicle moving from right to left
+    DrawFormulaCar(right_x, 300, 0x0000FF, right_x + 25);  // Blue vehicle 
 }
 
-// Ağaç  çizme fonksiyonu
+// Tree drawing function
 void static DrawTree(int treeX, int treeY) {
-    // Gövde (kahverengi dikdörtgen)
-    FillRect(panel, treeX, treeY, 10, 30, 0x8B4513);  // Gövde rengi (kahverengi)
+    // Trunk (brown rectangle)
+    FillRect(panel, treeX, treeY, 10, 30, 0x8B4513);  // Trunk color (brown)
 
-    // Yapraklar (yeşil daireler)
-    FillCircle(panel, treeX + 5, treeY - 10, 15, 0x228B22);  // Üst yaprak (yeşil)
-    FillCircle(panel, treeX + 5, treeY - 25, 12, 0x228B22);  // Orta yaprak (yeşil)
-    FillCircle(panel, treeX + 5, treeY - 35, 8, 0x228B22);   // Alt yaprak (yeşil)
+    // Leaves (green circles)
+    FillCircle(panel, treeX + 5, treeY - 10, 15, 0x228B22);  // Upper leaves (green)
+    FillCircle(panel, treeX + 5, treeY - 25, 12, 0x228B22);  // Middle leaves (green)
+    FillCircle(panel, treeX + 5, treeY - 35, 8, 0x228B22);   // Lower leaves (green)
 }
 
 
 void static Trees() {
-    // Ağaç  koordinatları 
+    // Tree coordinates
     int treeCoords[25][2] = {
-        {200, 500},   // 1. ağaç
-        {50, 450},    // 2. ağaç 
-        {100, 520},   // 3. ağaç 
-        {150, 470},   // 4. ağaç
-        {200, 510},   // 5. ağaç
-        {250, 480},   // 6. ağaç
-        {300, 530},   // 7. ağaç
-        {350, 460},   // 8. ağaç
-        {400, 500},   // 9. ağaç
-        {450, 490},   // 10. ağaç 
-        {500, 470},   // 11. ağaç 
-        {550, 520},   // 12. ağaç 
-        {550, 320},   // 13. ağaç 
-        {200, 400},   // 14. ağaç 
-        {50, 350},    // 15. ağaç 
-        {100, 420},   // 16. ağaç 
-        {150, 370},   // 17. ağaç 
-        {200, 410},   // 18. ağaç 
-        {250, 380},   // 19. ağaç 
-        {300, 430},   // 20. ağaç 
-        {350, 360},   // 21. ağaç 
-        {400, 400},   // 22. ağaç 
-        {450, 390},   // 23. ağaç 
-        {500, 370},   // 24. ağaç 
-        {550, 420},   // 25. ağaç   
+        {200, 500},   // 1st tree
+        {50, 450},    // 2nd tree 
+        {100, 520},   // 3rd tree 
+        {150, 470},   // 4th tree
+        {200, 510},   // 5th tree
+        {250, 480},   // 6th tree
+        {300, 530},   // 7th tree
+        {350, 460},   // 8th tree
+        {400, 500},   // 9th tree
+        {450, 490},   // 10th tree 
+        {500, 470},   // 11th tree 
+        {550, 520},   // 12th tree 
+        {550, 320},   // 13th tree 
+        {200, 400},   // 14th tree 
+        {50, 350},    // 15th tree 
+        {100, 420},   // 16th tree 
+        {150, 370},   // 17th tree 
+        {200, 410},   // 18th tree 
+        {250, 380},   // 19th tree 
+        {300, 430},   // 20th tree 
+        {350, 360},   // 21st tree 
+        {400, 400},   // 22nd tree 
+        {450, 390},   // 23rd tree 
+        {500, 370},   // 24th tree 
+        {550, 420},   // 25th tree   
     };
 
-    // Ağaçları  sabit konumlarda çizme
+    // Drawing trees at fixed positions
     for (int i = 0; i < 25; i++) {
         DrawTree(treeCoords[i][0], treeCoords[i][1]);
     }
 }
 
-// Bulut çizme fonksiyonu
+// Cloud drawing function
 void static DrawCloud(int x, int y) {
-    FillCircle(panel, x, y, 20, 0xD3D3D3); // Büyük gri daire
-    FillCircle(panel, x - 15, y, 20, 0xD3D3D3); // Sol küçük daire
-    FillCircle(panel, x + 15, y, 20, 0xD3D3D3); // Sağ küçük daire
-    FillCircle(panel, x - 7, y - 10, 20, 0xD3D3D3); // Üst sol
-    FillCircle(panel, x + 7, y - 10, 20, 0xD3D3D3); //  Üst sağ 
+    FillCircle(panel, x, y, 20, 0xD3D3D3); // Large gray circle
+    FillCircle(panel, x - 15, y, 20, 0xD3D3D3); // Left small circle
+    FillCircle(panel, x + 15, y, 20, 0xD3D3D3); // Right small circle
+    FillCircle(panel, x - 7, y - 10, 20, 0xD3D3D3); // Upper left
+    FillCircle(panel, x + 7, y - 10, 20, 0xD3D3D3); //  Upper right 
 }
 
 void static DrawClouds() {
-    // Bulutların pozisyonları, yukarıdan başlaması için y koordinatları artırıldı 
+    // Cloud positions, increased y-coordinates to start from above 
     DrawCloud(100, 50);
     DrawCloud(200, 40);
     DrawCloud(360, 60);
@@ -127,65 +119,65 @@ void static DrawClouds() {
 }
 
 VOID* Crashed(PVOID lpParam) {
-    int smokeY1 = 290; // İlk duman pozisyonları 
+    int smokeY1 = 290; // Initial smoke positions 
     int smokeY2 = 285;
     int smokeY3 = 280;
     thread_continue = true;
 
     //bool a = true;
     while (thread_continue) {
-        FillRect(panel, 0, 0, 600, 600, 0x55FFFF);  // Ekranı beyaza boyar
-        FillRect(panel, 0, 310, 600, 295, 0x55FF55); // Çimen
-        FillRect(panel, 0, 305, 600, 15, 0x808080); //  Yol
+        FillRect(panel, 0, 0, 600, 600, 0x55FFFF);  // Paint the screen white
+        FillRect(panel, 0, 310, 600, 295, 0x55FF55); // Grass
+        FillRect(panel, 0, 305, 600, 15, 0x808080); //  Road
 
         Trees();
 
-        // Yağmur damlalarının çizimi
+        // Drawing raindrops
         for (int i = 0; i < 11; i++) {
             DrawRaindrop(x[i], y[i]);
             y[i] += speed[i];
             if (y[i] > 600) y[i] = 0;
         }
         DrawClouds();
-        // Kırmızı  aracın  dağılmış  hali
-        FillRect(panel, left_x, 300, 30, 8, 0xFF0000);     // Gövde parçası 
-        FillRect(panel, left_x + 10, 290, 10, 5, 0x00FFFF); // Cam parçası 
-        FillCircle(panel, left_x + 5, 310, 6, 0x333333);    // Sol tekerlek
-        FillCircle(panel, left_x + 20, 315, 6, 0x333333);   // Sağ tekerlek
+        // Scattered state of the red vehicle
+        FillRect(panel, left_x, 300, 30, 8, 0xFF0000);     // Body part 
+        FillRect(panel, left_x + 10, 290, 10, 5, 0x00FFFF); // Window part 
+        FillCircle(panel, left_x + 5, 310, 6, 0x333333);    // Left wheel
+        FillCircle(panel, left_x + 20, 315, 6, 0x333333);   // Right wheel
 
-        // Mavi aracın  dağılmış  hali
-        FillRect(panel, right_x, 300, 30, 8, 0x0000FF);    // Gövde parçası 
-        FillRect(panel, right_x + 10, 290, 10, 5, 0x00FFFF); // Cam parçası 
-        FillCircle(panel, right_x + 5, 310, 6, 0x333333);   // Sol tekerlek
-        FillCircle(panel, right_x + 20, 315, 6, 0x333333);  // Sağ tekerlek
+        // Scattered state of the blue vehicle
+        FillRect(panel, right_x, 300, 30, 8, 0x0000FF);    // Body part 
+        FillRect(panel, right_x + 10, 290, 10, 5, 0x00FFFF); // Window part 
+        FillCircle(panel, right_x + 5, 310, 6, 0x333333);   // Left wheel
+        FillCircle(panel, right_x + 20, 315, 6, 0x333333);  // Right wheel
 
-        // Duman efektleri (gri daireler), yukarı doğru hareket eder
+        // Smoke effects (gray circles), move upwards
         FillCircle(panel, (left_x + right_x) / 2 - 10, smokeY1, 8, 0x808080);
         FillCircle(panel, (left_x + right_x) / 2 + 10, smokeY2, 10, 0xA9A9A9);
         FillCircle(panel, (left_x + right_x) / 2, smokeY3, 12, 0xB0B0B0);
 
-        // Dumanın yukarı doğru hareketini sağlar
-        smokeY1 -= 1; // Duman yavaşça yukarı çıkar
+        // Enables upward movement of smoke
+        smokeY1 -= 1; // Smoke rises slowly
         smokeY2 -= 1;
         smokeY3 -= 1;
 
-        // Eğer duman ekran dışına  çıkarsa yeniden pozisyonla
+        // If smoke goes off-screen, reposition it
         if (smokeY1 < 0) smokeY1 = 290;
         if (smokeY2 < 0) smokeY2 = 285;
         if (smokeY3 < 0) smokeY3 = 280;
 
-        // Yangın efektleri (sarı ve kırmızı alevler)
+        // Fire effects (yellow and red flames)
         for (int i = 0; i < 10; i++) {
-            int fireX = (left_x + right_x) / 2 + (rand() % 20 - 10); // Rastgele x pozisyonu
-            int fireY = 300 - (rand() % 20);                         // Rastgele y pozisyonu
+            int fireX = (left_x + right_x) / 2 + (rand() % 20 - 10); // Random x position
+            int fireY = 300 - (rand() % 20);                         // Random y position
 
-            // Sarı ve kırmızı  dairelerle alevleri oluştur
-            FillCircle(panel, fireX, fireY, rand() % 5 + 3, 0xFFA500);  // Sarı alev
-            FillCircle(panel, fireX + 5, fireY - 5, rand() % 4 + 2, 0xFF4500);  // Kırmızı alev
+            // Create flames with yellow and red circles
+            FillCircle(panel, fireX, fireY, rand() % 5 + 3, 0xFFA500);  // Yellow flame
+            FillCircle(panel, fireX + 5, fireY - 5, rand() % 4 + 2, 0xFF4500);  // Red flame
         }
 
 
-        // Görüntüyü ekrana yansıt
+        // Reflect the image on the screen
         DisplayImage(FRM1, panel);
         Sleep(30);
     }
@@ -200,7 +192,7 @@ VOID* Animate(PVOID lpParam) {
         FillRect(panel, 0, 310, 600, 295, 0x55FF55);
         FillRect(panel, 0, 305, 600, 15, 0x808080);
 
-        // Yağmur damlalarını çiz
+        // Draw raindrops
         for (int i = 0; i < 11; i++) {
             DrawRaindrop(x[i], y[i]);
             y[i] += speed[i];
@@ -212,56 +204,11 @@ VOID* Animate(PVOID lpParam) {
         DrawHorizontalObjects();
 
 
-        //Ağaçlar
+        //Trees
         Trees();
-        // Araçların hareketi
+        // Vehicle movement
         left_x += left_speed;
         right_x -= right_speed;
 
-        // Çarpışma kontrolü
-        if (left_x + 40 >= right_x) {  // Araç genişliğine göre çarpışma kontrolü 
-            left_speed = -left_speed;  // Yön değiştirme
-            right_speed = -right_speed;
-            thread_continue = false;
-            CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Crashed, NULL, 0, &dw); // Crash Sicimi
-            return NULL; 
-        }
-
-        // Ekran sınırlarını  kontrol etme
-        if (left_x <= 0 || left_x >= 540) left_speed = -left_speed;  // Kırmızı aracın sınırları 
-        if (right_x <= 0 || right_x >= 540) right_speed = -right_speed;  // Mavi aracın sınırları  
-
-        // Görüntüyü ekrana yansıt
-        DisplayImage(FRM1, panel);
-        Sleep(30);
-    }
-
-}
-void butonfonk() {
-    panel = 0;
-    if (!thread_continue) {
-        thread_continue = true;
-        CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Animate, NULL, 0, &dw); // Bar hareketi
-
-        SetFocus(ICG_GetMainWindow());
-    }
-    else {
-        thread_continue = false;
-    }
-
-}
-
-void ICGUI_Create() {
-    ICG_MWTitle("Formula Cars Collision");
-    ICG_MWSize(800, 720);
-    ICG_SetFont(30, 12, "");
-}
-
-void ICGUI_main() {
-    setRandomSpeeds();
-
-    CreateImage(panel, 600, 600, ICB_UINT);
-
-    FRM1 = ICG_FrameMedium(0, 50, 600, 600);
-    ICG_Button(650, 50, 125, 50, "START / STOP", butonfonk);
-}
+        // Collision detection
+        if (left_x + 40 >= right_x) {  // Collision detection
